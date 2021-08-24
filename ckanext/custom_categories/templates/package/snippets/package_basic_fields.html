@@ -1,0 +1,10 @@
+{% ckan_extends %}
+
+
+
+{% block package_basic_fields_custom %}
+    {% import 'macros/form.html' as form %}
+
+    {{ form.select('category', label=_('Category'), options=h.custom_categories_list() , selected="None", error=errors.category) }}
+{% endblock %}
+
