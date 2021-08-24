@@ -5,6 +5,17 @@
 {% block package_basic_fields_custom %}
     {% import 'macros/form.html' as form %}
 
-    {{ form.select('category', label=_('Category'), options=h.custom_categories_list() , selected="None", error=errors.category) }}
+    {% set opts =  h.custom_categories_list() %}
+    
+
+    {% if data.get('category') %}
+        {% set selected1 =  data.get('category') %}
+    {% else %}
+        {% set opts = [{'text':'Select Option','value':''}] + opts %}
+        {% set selected1 = '' %}    
+    {% endif %}
+        
+    
+    {{ form.select('category', label=_('Category'), options= opts, selected=selected1, error=errors.category) }}
 {% endblock %}
 

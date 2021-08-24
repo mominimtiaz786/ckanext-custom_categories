@@ -7,8 +7,9 @@ categories_list = ["Science & Technology","Public Safety", "Manufactoring & Publ
 def all_categories():
     options_list = []
     for opt in categories_list:
-        dict1 = {'name':opt,'value':opt}
+        dict1 = {'text':opt,'value':opt}
         options_list.append(dict1)
+    
     return options_list
 
 class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
