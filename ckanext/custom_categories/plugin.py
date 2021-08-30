@@ -3,6 +3,34 @@ import ckan.plugins.toolkit as tk
 
 CATEGORIES_LIST = ["Science & Technology","Public Safety", "Manufactoring & Public Services","Agriculture, Food & Forests","Cities & Regions","Connectivity","Culture","Demography","Economy & Finance","Education","Environment & Energy","Government & Public Sector","Health","Housing & Public Services" ]
 
+LOCATIONS_LIST = [u"Lahore", u"Karachi",u"Islamabad",u"Sialkot",u"Gujranwala",u"Peshawar",u"Quetta"]
+
+def returnLocations():
+    return LOCATIONS_LIST
+
+
+def create_location_tags():
+    user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
+    context = {'user': user['name']}
+    try:
+        data = {'name': 'locations'}
+        tk.get_action('vocabulary_show')(context, data)
+    except tk.ObjectNotFound:
+        data = {'name': 'locations'}
+        vocab = tk.get_action('vocabulary_create')(context, data)
+        for tag in [u"Lahore", u"Karachi",u"Islamabad",u"Sialkot",u"Gujranwala",u"Peshawar",u"Quetta"]:
+            data = {'name': tag, 'vocabulary_id': vocab['id']}
+            tk.get_action('tag_create')(context, data)
+
+def locations():
+    create_location_tags()
+    try:
+        tag_list = tk.get_action('tag_list')
+        location_tags = tag_list(data_dict={'vocabulary_id': 'locations'})
+        return location_tags
+    except tk.ObjectNotFound:
+        return None
+
 
 def all_categories():
     options_list = []
@@ -34,10 +62,13 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         for key in facets_dict:
             if key == 'groups':
                 new_dict['category'] = tk._('Category')
+                new_dict['vocab_locations'] = tk._('Locations')
             else:
                 new_dict[key] = facets_dict[key]
         return new_dict
 
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        return facets_dict
 
     p.implements(p.IDatasetForm) 
     def is_fallback(self):
@@ -57,6 +88,12 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
                             tk.get_validator('custom_category_valid_category')
                             ]
         })
+        schema.update({
+            'locations': [tk.get_validator('ignore_missing'),
+                        tk.get_converter('convert_to_tags')('locations')
+                            ]
+        })
+        
         return schema
 
     def create_package_schema(self):
@@ -75,6 +112,14 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
             'category': [tk.get_converter('convert_from_extras'),
                             tk.get_validator('ignore_missing')]
         })
+        schema['tags']['__extras'].append(tk.get_converter('free_tags_only'))
+        
+        schema.update({
+            'locations': [
+                tk.get_converter('convert_from_tags')('locations'),
+                tk.get_validator('ignore_missing')
+                ]
+            })
         return schema
     
     # IConfigurer
@@ -89,7 +134,8 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         # Template helper function names should begin with the name of the
         # extension they belong to, to avoid clashing with functions from
         # other extensions.
-        return {'custom_categories_list': all_categories                
+        return {'custom_categories_list': all_categories,  
+                'custom_categories_locations':returnLocations
                 }
 
 
