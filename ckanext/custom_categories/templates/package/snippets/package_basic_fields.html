@@ -34,7 +34,7 @@
     {% set locs = data.locations %}
     <label class="control-label" for="field-locations">Location Tags</label>
     <div class="controls">
-    <select class="select control-full" data-module="autocomplete" id = 'field-locations' name='locations' value = {{data.locations }} multiple>
+    <select multiple class="select control-full" data-module="autocomplete" id = 'field-locations' name='locations' value = {{data.locations }} >
         {% for opt in opts %}
         {% if opt in locs %}
         <option value={{ opt }} selected = "selected" >{{opt}}</option>
