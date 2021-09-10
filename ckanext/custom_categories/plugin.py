@@ -1,5 +1,6 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
+from collections import OrderedDict
 
 CATEGORIES_LIST = ["Science & Technology","Public Safety", "Manufactoring & Public Services","Agriculture, Food & Forests","Cities & Regions","Connectivity","Culture","Demography","Economy & Finance","Education","Environment & Energy","Government & Public Sector","Health","Housing & Public Services" ]
 
@@ -58,7 +59,7 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     def dataset_facets(self, facets_dict, package_type):
         #facets_dict['groups'] = tk._('custom_text')
         #facets_dict['custom_text'] = facets_dict.pop('groups')
-        new_dict = {}
+        new_dict = OrderedDict()
         for key in facets_dict:
             if key == 'groups':
                 new_dict['category'] = tk._('Category')
@@ -68,7 +69,15 @@ class Custom_CategoriesPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         return new_dict
 
     def organization_facets(self, facets_dict, organization_type, package_type):
-        return facets_dict
+        new_dict = OrderedDict()
+        for key in facets_dict:
+            if key == 'groups':
+                new_dict['category'] = tk._('Category')
+                new_dict['vocab_locations'] = tk._('Locations')
+            else:
+                new_dict[key] = facets_dict[key]
+        return new_dict
+
 
     p.implements(p.IDatasetForm) 
     def is_fallback(self):
