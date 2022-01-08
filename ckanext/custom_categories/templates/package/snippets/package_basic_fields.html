@@ -1,10 +1,81 @@
 {% ckan_extends %}
 
-
-
 {% block package_basic_fields_custom %}
     {% import 'macros/form.html' as form %}
 
-    {{ form.select('category', label=_('Category'), options=h.custom_categories_list() , selected="None", error=errors.category) }}
+    {% set opts =  h.custom_categories_list() %}
+
+    {% if data.get('category') %}
+        {% set selected1 =  data.get('category') %}
+    {% else %}
+        {% set opts = [{'text':'Select Option','value':''}] + opts %}
+        {% set selected1 = '' %}    
+    {% endif %}
+        
+    {{ form.select('category', label=_('Category'), options= opts, selected=selected1, error=errors.category, is_required=true) }}
+
+
+    {% set opts =  h.custom_categories_locations() %}
+
+    
+    {% set loc_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?&vocabulary_id=locations'} %}
+
+    
+    
+
+        {% set options1 = [] %}
+        {% for opt in opts %}
+        {% set options1 = options1 + [{'text':opt,'value':opt}] %}
+        {% endfor %}
+    {#
+    {{ form.input('locations', id='field-locations', label=_('Locations'),value=data.locations, error=errors.locations, classes=['control-full'], attrs=loc_attrs) }}
+    #}
+
+    {% set locs = data.locations %}
+    <label class="control-label" for="field-locations">Location Tags</label>
+    <div class="controls">
+    <select multiple class="select control-full" data-module="autocomplete" id = 'field-locations' name='locations' value = {{data.locations }} >
+        {% for opt in opts %}
+        {% if opt in locs %}
+        <option value={{ opt }} selected = "selected" >{{opt}}</option>
+        {% else %}
+        <option value={{ opt }}  >{{opt}}</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+{#
+<div class="form-group control-full">
+    <label class="control-label" for="field-tags">Tags</label>
+    <div class="controls ">
+        
+        <div class="select2-container select2-container-multi" id="s2id_field-tags" style="width: 763.5px;">
+            <ul class="select2-choices">  
+                <li class="select2-search-choice">    
+                    <div>OLX</div>    
+                    <a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>
+                
+                <li class="select2-search-choice">    <div>Vehicles</div>    <a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>
+                
+                <li class="select2-search-choice">    <div>automobiles</div>    <a href="#" class="select2-search-choice-close" tabindex="-1"></a></li>
+                
+                <li class="select2-search-field">    
+                    <label for="s2id_autogen1" class="select2-offscreen">Tags</label>    
+                    <input type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="select2-input" id="s2id_autogen1" style="width: 20px;" placeholder="">  
+                </li>
+            </ul>
+                <div class="select2-drop select2-drop-multi select2-display-none">   
+                    <ul class="select2-results">   </ul>
+                </div>
+        </div>
+        <input id="field-tags" type="text" name="tag_string" value="OLX,Vehicles,automobiles" placeholder="eg. economy, mental health, government" data-module-tags="" data-module="autocomplete" data-module-source="/api/2/util/tag/autocomplete?incomplete=?" tabindex="-1" style="display: none;">
+      
+        
+        
+    </div>
+</div>
+#}
+
 {% endblock %}
 
